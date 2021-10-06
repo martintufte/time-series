@@ -17,4 +17,5 @@ sacf <- function(x, max.lag=12){
   
   output <- list( gamma.hat = gamma.hat,
                   rho.hat = rho.hat)
+  return(output)
 }
