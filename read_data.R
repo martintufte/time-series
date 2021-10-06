@@ -27,7 +27,25 @@ for (i in idx.na){
 }
 
 
+# create time-series object
 library(stats)
 ts <- as.ts(df$CBBTCUSD)
 
-plot(log(ts))
+# log of time series
+ts.log <- log(ts)
+
+# Import sample autocovariance function
+source('functions/sacf.R')
+
+par(mfrow=c(2,2),mar=c(5,4,1,2))
+
+plot(ts, ylab='USD')
+plot(ts.log, ylab='log(USD)')
+plot(sacf(ts, max.lag=100)$rho.hat, type='o', xlab='lag',ylab='sacf')
+plot(sacf(ts.log, max.lag=100)$rho.hat, type='o', xlab='lag',ylab='sacf of log')
+
+
+p = 2
+q = 2
+fit <- arima(ts.log, order = c(p, 0, q))
+
