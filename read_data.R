@@ -13,7 +13,7 @@ library(stats)
 df <- read.csv(file = "data/CBBTCUSD.csv")
 
 # remove earlier dates than 2015-01-19 (as they contain lots of NA)
-df <- df[as.Date(df$DATE) > as.Date("2015-01-19"),]
+df <- df[as.Date(df$DATE) >= as.Date("2015-01-19"),]
 # fix NAN at "2020-09-04"
 df[df$DATE=="2020-09-04",'CBBTCUSD'] = 10493.77
 # convert to numeric values
