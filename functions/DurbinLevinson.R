@@ -15,8 +15,29 @@ DL <- function(x, gamma, max.n=Inf){
     Phi[k, 1:(k-1)] = Phi[k-1, 1:(k-1)] - Phi[k, k] * Phi[k-1, (k-1):1]
   }
   
-  output <- list(Phi = Phi, v = v)
+  output <- list(Phi = Phi, v = v, lags = 0:n)
   return(output)
+}
+
+
+DL.1step <- function(X, q, Phi, gamma){
+  n <- length(X)
+  X.bar <- mean(X)
+  X.pred <- sum(Phi[q,1:q] * (X - X.bar)[n:(n-q+1)] ) + X.bar
+  
+  return(X.pred)
+}
+
+
+DL.hstep <- function(X, q, Phi, gamma, h){
+  X.pred <- rep(0,h)
+  
+  X.pred[1] <- DL.1step(X, q, Phi, gamma)
+  for(i in 2:h){
+    X.pred[i] <- DL.1step(c(X,X.pred[1:i-1]), q, Phi, gamma)
+  }
+  
+  return(X.pred)
 }
 
 
