@@ -54,38 +54,25 @@ plot(pacf(ts.log.diff, max.lag=30)$phi.hat, type='o', xlab='lag',ylab='pacf of d
 
 ### Model 1: MA(q) using DL ###
 par(mfrow=c(1,1))
-q <- 10
-
 X <- ts.log
 n <- length(X)
+q <- 20
+h <- 365
+
+# sample autocovariance function
 gamma.hat <- sacf(X,max.lag=20)$gamma.hat
 
 DL.out <- DL(X-mean(X), gamma.hat, max.n = 20)
 
 # Yule-Walker estimates for the parameters
-Phi <- DL.out$Phi
-Phi[q,1:q]
+Phi.hat <- DL.out$Phi
 
-plot(Phi.hat[20,],type='o')
+# Prediction
+X.pred <- DL.hstep(X, q, Phi.hat, gamma.hat, h)
 
-X.pred <- DL.1step(X, q, Phi.hat, gamma.hat)
-
-X.pred <- DL.hstep(X, q, Phi.hat, gamma.hat, 3)
-
-plot(X)
-X.pred
-
-
-#v <- DL.out$v
-#v[1:q]
-#MSE <- gamma.hat[1] + sum(Phi[q,1:q] * gamma.hat[2:(q+1)])
-#MSE
-
-### Model 2: AR(p) ###
-
-
-### estimate ARIMA(p,d,q) ###
-
+# Plot prediction
+plot(1:n,X, type='l', xlim=c(0,2800))
+lines((n+1):(n+h),X.pred, type='l', col="red")
 
 
 
