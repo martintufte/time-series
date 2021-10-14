@@ -49,11 +49,29 @@ plot(sacf(ts.log.diff, max.lag=30)$rho.hat, type='o', xlab='lag',ylab='sacf of d
 plot(pacf(ts, max.lag=30)$phi.hat, type='o', xlab='lag',ylab='pacf')
 plot(pacf(ts.log, max.lag=30)$phi.hat, type='o', xlab='lag',ylab='pacf of log')
 plot(pacf(ts.diff, max.lag=30)$phi.hat, type='o', xlab='lag',ylab='pacf of diff')
-abline(h=1.96/sqrt(n), col='red')
-abline(h=-1.96/sqrt(n), col='red')
 plot(pacf(ts.log.diff, max.lag=30)$phi.hat, type='o', xlab='lag',ylab='pacf of diff of log')
-abline(h=1.96/sqrt(n), col='red')
-abline(h=-1.96/sqrt(n), col='red')
+
+
+### Model 1: MA(1) using DL ###
+par(mfrow=c(1,1))
+
+X <- ts.log.diff
+gamma.hat <- sacf(X,max.lag=20)$gamma.hat
+
+DL.out <- DL(X-mean(X), gamma.hat, max.n = 20)
+
+# Yule-Walker estimates for the parameters
+Phi.hat <- DL.out$Phi
+Phi.hat[1,1]
+
+plot(Phi.hat[20,],type='o')
+
+v <- DL.out$v
+v[1:1]
+
+
+
+
 
 
 ### estimate ARIMA(p,d,q) ###
