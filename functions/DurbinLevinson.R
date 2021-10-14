@@ -21,8 +21,7 @@ DL <- function(x, gamma, max.n=Inf){
 
 
 
-# Jorges implementation
-if(0){
+'# Jorges implementation
 DL.1step <- function(X, gamma.0, gamma.n){
   X.cent <- X - mean(X) # Zero-mean time series
   n <- length(X)
@@ -41,5 +40,4 @@ DL.1step <- function(X, gamma.0, gamma.n){
   
   output <- list(Phi = Phi, v = v)
   return(output)
-}
-}
+}'
