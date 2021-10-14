@@ -1,70 +1,42 @@
-# Innovation algorithm
-# Gets the theta values
+# Function that performs the innovation algoirthm
 
-source("functions/sacf.R")
+# X must be zero-mean
+# h is the number of steps we want to predict
+# K is the covariance matrix of X_1 ... X_{n+h}
+# K can be estimated using an autocorrelation function
 
-K.hat <- function(X)
-{
-  n = length(X)
-  gamma.hat <- sacf(X,max.lag=n)$gamma.hat
-  
-  K.hat <- matrix(NA,n+1,n+1)
-  for(j in 1:(n+1))
-  {
-    for(i in 1:(n+1))
-    {
-      K.hat[i,j] <- c(gamma.hat)[1+abs(i-j)]
+
+innov.hstep <- function(X, h, K) {
+  n <- length(X)
+  v <- numeric(n+h)
+  X.pred <- numeric(n+h)
+  Theta <- matrix(NA,n+h,n+h)
+  v[1] <- K[1,1]
+  X.pred[1] <- 0
+  Theta[1,1] <- K[2,1]/v[1]
+  v[2] <- K[2,2] - Theta[1,1]^2*v[1]
+  X.pred[2] <- Theta[1,1]*X[1]
+  # innovations algorithm
+  for (k in 2:n) {
+    Theta[k,k] <- K[k+1,1]/v[1]
+    for (j in 1:(k-1)) {
+      Theta[k,k-j] <- (K[k+1,j+1] - sum(Theta[j,j:1]*Theta[k,k:(k-j+1)]*v[1:j]))/v[j+1]
     }
+    v[k+1] <- K[k+1,k+1] - sum(Theta[k,k:1]^2 * v[1:k])
+    X.pred[k+1] <- sum( Theta[k,1:k] * (X[k:1] - X.pred[k:1]))
   }
-  return(K.hat)
+  # forcast from n+1 to h
+  for (k in (n+1):(n+h-1)) {
+    Theta[k,k] <- K[k+1,1]/v[1]
+    for (j in 1:(k-1)) {
+      Theta[k,k-j] <- (K[k+1,j+1]- sum(Theta[j,j:1]*Theta[k,k:(k-j+1)]*v[1:j]))/v[j+1]
+    }
+    v[k+1] <- K[k+1,k+1] - sum(Theta[k,(k-n+1):k]^2 * v[n:1])
+    X.pred[k+1] <- sum( Theta[k,(k-n+1):k] * (X[n:1] - X.pred[n:1]))
+  }
+  output <- list(X.pred = X.pred, v=v)
 }
 
 
-innov.hstep <- function(X) {
-  n = length(X)
-  K = K.hat(X)
-  v0 = K[1,1]
-  v = rep(0,n+1)
-  v[1] = v0
-  Theta <- matrix(0,n,n)
-  
-  for (i in 1:n) {
-    for (k in 0:i) {
-      temp_sum = 0
-      for (j in 0:(k-1)) {
-        temp_sum = temp_sum + Theta[k,k-j]*Theta[n,n-j]*v[j]
-      }
-      Theta[i,i-k] = 1/v[k]*(K[i+1,k+1]-temp_sum)
-    }
-    temp_sum2 = 0
-    for (j in 0:i-1) {
-      temp_sum2 = temp_sum2 + (Theta[i,i-j])^2*v[j]
-    }
-    v[i+1] = K[i+1,i+1] - temp_sum2
-  }
-  return(Theta) # could return only Theta[n] as we use those to predict
-}
-
-
-# innov.hstep <- function(X,h)
-# {
-#   X.cent <- X - mean(X)
-#   n <- length(X)
-#   v <- numeric(n+h)
-#   X.pred <- numeric(n+h)
-#   Theta <- matrix(0,n+h,n+h)
-#   K = K.hat(X)
-#   v[1] = K[1,1]
-#   X.pred[1] = 0
-#   Theta[2,1] <- K[2,1]/v[1]
-#   v[2] <- K[2,2] - Theta[2,1]^2 * v[1]
-#   X.pred[2] <- Theta[2,1]*X[1]
-#   for(k in 2:n) {
-#     Theta[1+k,k] <- K[k+1,1]/v[1]
-#     for (j in 2:(k-1)) {
-#       Theta[1+k,k-j] <- (K[k+1,j+1] - sum(Theta[1+j,j:1]*Theta[1+k,k:(k-j+1)]*v[1:j]))/v[j+1]
-#     }
-#   }
-# }
 
 
