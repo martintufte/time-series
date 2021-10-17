@@ -76,6 +76,24 @@ lines((n+1):(n+h),X.pred, type='l', col="red")
 
 
 
+### Model 2: Innovations algorithm to predict
+
+X <- ts.log[2000:2458] # Using a limited set of data to prevent it from taking too long
+n <- length(X)
+
+# estimate K
+autocor <- sacf(X,n+h)
+gamma.hat = autocor$gamma.hat
+
+K <- toeplitz(gamma.hat)
+
+# make ts zero-mean, and add the mean back after prediction
+X.pred <- innov.hstep(X-mean(X),h,K)$X.pred + mean(X)
+#X.pred
+
+plot(1:(n+h),exp(X.pred),type="l")
+
+
 
 
 ### Forecasting ###
