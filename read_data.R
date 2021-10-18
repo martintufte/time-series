@@ -4,6 +4,7 @@
 source('functions/sacf.R')
 source('functions/pacf.R')
 source('functions/DurbinLevinson.R')
+source('functions/innovations.R')
 library(stats)
 
 
@@ -77,6 +78,7 @@ lines((n+1):(n+h),X.pred, type='l', col="red")
 
 
 ### Model 2: Innovations algorithm to predict
+par(mfrow=c(1,1))
 
 X <- ts.log[2000:2458] # Using a limited set of data to prevent it from taking too long
 n <- length(X)
@@ -89,12 +91,8 @@ K <- toeplitz(gamma.hat)
 
 # make ts zero-mean, and add the mean back after prediction
 X.pred <- innov.hstep(X-mean(X),h,K)$X.pred + mean(X)
-#X.pred
-
-plot(1:(n+h),exp(X.pred),type="l")
-
-
+plot(1:n, X, type="l",xlim=c(1, n+h))
+lines((n+1):(n+h), exp(X.pred[(n+1):(n+h)]))
 
 
 ### Forecasting ###
-

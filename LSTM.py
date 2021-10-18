@@ -51,16 +51,6 @@ plt.plot(df.logBTC)
 plt.plot(df.logTrend)
 plt.show()
 
-
-
-### reshaped into Samples/TimeSteps/Features format
-
-# split data into train and test-sets
-train, test = df[0:-500], df[-500:]
-print(train)
-
-
-
 ### scale data and reshape to use in LSTM?
 
 #scaler = MinMaxScaler(feature_range = (-1, 1)).fit(train.CBBTCUSD)
@@ -70,7 +60,7 @@ print(train)
 
 
 
-### define model
+### define Long-Short Term model
 
 # split a univariate sequence
 def split_sequence(sequence, n_steps):
@@ -138,4 +128,16 @@ plt.plot(p_index, trend(p_index) + prediction)
 plt.show()
 
 
+h = 1000
 
+prediction = predict_lstm_hstep(model, raw_seq, h)
+p_index = range(df.index[-1]+1, df.index[-1]+1+h)
+
+plt.plot(df.index, df.logBTC)
+plt.plot(p_index, trend(p_index) + prediction)
+plt.show()
+
+
+
+
+#'''
