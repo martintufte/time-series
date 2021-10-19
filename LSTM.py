@@ -32,7 +32,7 @@ df.index = df.index + 2158
 # transform the data using log-transformation (Box-Cox with lambda=0)
 df.loc[:,'logBTC'] = np.log(df.BTC)
 
-
+print(df.index[0])
 
 ### remove trend component, assume linear trend m(t) = beta0 + beta1 * t
 
