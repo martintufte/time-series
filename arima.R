@@ -1,4 +1,5 @@
 library(forecast)
+library(tscourse)
 
 ### DATA PREP ###
 
@@ -50,7 +51,6 @@ plot(sacf(arima.out.AIC$residuals, max.lag=10)$rho.hat, type='o', xlab='lag',yla
 hist(arima.out.AIC$residuals)
 
 # white noice test
-library(tscourse)
 WNtest.LB(arima.out.AIC$residuals, k=p.AIC+q.AIC+1, nparms = p.AIC + q.AIC)
 
 # For BIC
@@ -108,8 +108,6 @@ for(i in 1:5){
   lines(Ysim[i,] ~ c((n+1):(n+h)),col=i+1)
 }
 }
-
-
 
 
 # predictions BIC
