@@ -65,6 +65,23 @@ d <- 1 # no seasonality
 s <- seasonality_estimator(df$X.log, d)
 df['s'] <- rep(s, ceiling(n/d))[1:n]
 
+d <- 7 # daily
+s7 <- seasonality_estimator(df$X.log, d)
+df['s7'] <- rep(s7, ceiling(n/d))[1:n]
+
+d <- 30 # monthly
+s30 <- seasonality_estimator(df$X.log, d)
+df['s30'] <- rep(s30, ceiling(n/d))[1:n]
+
+d <- 91 #quarterly
+s91 <- seasonality_estimator(df$X.log, d)
+df['s91'] <- rep(s91, ceiling(n/d))[1:n]
+
+par(mfrow=c(3,1),mar=c(5,4,1,2))
+plot(s7, type = "l")
+plot(s30, type = "l")
+plot(s91, type = "l")
+
 fit <- lm(X.log ~ 1 + t, data = df) # linear trend beta0 + beta1 * t
 df['m'] <- fit$fitted.values
 beta0 <- fit$coefficients[1]
