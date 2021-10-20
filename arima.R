@@ -80,12 +80,12 @@ plot(ts.log,xlim=c(start_plot,n+h),ylim=c(8,13),main="Model with best AIC")
 
 pred.arima.out.AIC <- predict(arima.out.AIC,n.ahead = h)
 X.hpred.arima.AIC <- pred.arima.out.AIC$pred
-lines((n+1):(n+h),X.hpred.arima.AIC,col="blue")
+lines((n+1):(n+h),X.hpred.arima.AIC,col="red")
 
 # prediction interval:
 X.hpred.se.arima.AIC <- pred.arima.out.AIC$se
-lines(X.hpred.arima.AIC + 1.96 * X.hpred.se.arima.AIC ~ c((n+1):(n+h)),col="red",lwd=2 )
-lines(X.hpred.arima.AIC - 1.96 * X.hpred.se.arima.AIC ~ c((n+1):(n+h)),col="red",lwd=2 )
+lines(X.hpred.arima.AIC + 1.96 * X.hpred.se.arima.AIC ~ c((n+1):(n+h)),col="blue",lty=3 )
+lines(X.hpred.arima.AIC - 1.96 * X.hpred.se.arima.AIC ~ c((n+1):(n+h)),col="blue",lty=3 )
 
 ## Extra: What about bootstrapping? Sometimes it can be useful!
 B <- 1000
@@ -100,8 +100,8 @@ for(i in 1:B){
 
 apply(Ysim,2,sd) #Very similar to X.hpred.se.arima.BIC
 boot.forecast <- apply(Ysim,2,quantile,c(0.025,0.975))
-lines(boot.forecast[1,] ~ c((n+1):(n+h)),col="black",lwd=2)
-lines(boot.forecast[2,] ~ c((n+1):(n+h)),col="black",lwd=2)
+lines(boot.forecast[1,] ~ c((n+1):(n+h)),col="blue",lwd=2)
+lines(boot.forecast[2,] ~ c((n+1):(n+h)),col="blue",lwd=2)
 
 ## Plotting 5 out of the B possible futures simulated 
 for(i in 1:5){
@@ -117,15 +117,15 @@ X.hpred.arima.BIC <- pred.arima.out.BIC$pred
 
 plot(ts.log,xlim=c(start_plot,n+h),ylim=c(8,13), main="Model with best BIC")
 
-lines((n+1):(n+h),X.hpred.arima.BIC,col="blue")
+lines((n+1):(n+h),X.hpred.arima.BIC,col="red")
 
 # prediction interval:
 X.hpred.se.arima.BIC <- pred.arima.out.BIC$se
-lines(X.hpred.arima.BIC + 1.96 * X.hpred.se.arima.BIC ~ c((n+1):(n+h)),col="red",lwd=2 )
-lines(X.hpred.arima.BIC - 1.96 * X.hpred.se.arima.BIC ~ c((n+1):(n+h)),col="red",lwd=2 )
+lines(X.hpred.arima.BIC + 1.96 * X.hpred.se.arima.BIC ~ c((n+1):(n+h)),col="blue",lty=3 )
+lines(X.hpred.arima.BIC - 1.96 * X.hpred.se.arima.BIC ~ c((n+1):(n+h)),col="blue",lty=3 )
 
 
-## Extra: What about bootstrapping? Sometimes it can be useful!
+## Bootstrapping
 B <- 1000
 
 residuals <- c(arima.out.BIC$residuals)

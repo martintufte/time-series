@@ -25,6 +25,7 @@ names(df)[names(df) == "CBBTCUSD"] <- "X"
 # t is time after Bitcoins creation
 df['t'] <- 1:n + 2206
 
+df$t
 
 
 ### PLOT DATA ###
@@ -60,16 +61,16 @@ plot(pacf(X.log.diff, max.lag=30)$phi.hat, type='o', xlab='lag',ylab='pacf of di
 
 ### Remove seasonality and trend
 
-d <- 7 # no seasonality
+d <- 1 # no seasonality
 s <- seasonality_estimator(df$X.log, d)
 df['s'] <- rep(s, ceiling(n/d))[1:n]
 
 fit <- lm(X.log ~ 1 + t, data = df) # linear trend beta0 + beta1 * t
 df['m'] <- fit$fitted.values
-#beta0 <- fit$coefficients[1]
-#beta1 <- fit$coefficients[2]
+beta0 <- fit$coefficients[1]
+beta1 <- fit$coefficients[2]
 
-#Add the stationary time series (Y = X.log - m - s)
+# Add the stationary time series (Y = X.log - m - s)
 df['Y'] = df$X.log - df$m - df$s
 
 
@@ -104,11 +105,11 @@ lines((n+1):(n+h), ts.pred, type='l', col="red")
 
 
 ### Model 2: Innovations algorithm to predict
-par(mfrow=c(1,1))
+par(mfrow=c(2,2))
 start.idx = 2000 # Using a limited set of data to prevent it from taking too long
 
 ts <- as.ts(df$Y)
-ts <- ts[start.idx:2458] 
+ts <- ts[start.idx:length(ts)] 
 n <- length(ts)
 
 # estimate K
@@ -117,12 +118,59 @@ gamma.hat = autocor$gamma.hat
 
 K <- toeplitz(gamma.hat)
 
-# make ts zero-mean, and add the mean back after prediction
-ts.pred <- innov.hstep(ts,h,K)$X.pred
-plot((start.idx+1):(start.idx+n), ts, type="l", xlim=c(start.idx,start.idx+n+h), xlab='t', ylab='Y')
+# predict Y using innovations
+Y.pred <- innov.hstep(ts,h,K)$X.pred
+
+ts.trend <- beta0 + beta1*c(df$t[start.idx+1]:(df$t[start.idx]+n+h))
+
+ts.pred <- Y.pred + ts.trend
+
+ymin = min(ts.pred,((df$Y+df$m)[(start.idx+1):(start.idx+n-1)]))
+ymax = max(ts.pred,((df$Y+df$m)[(start.idx+1):(start.idx+n-1)]))
+
+# plot 
+plot((start.idx+1):(start.idx+n), (df$Y+df$m)[(start.idx+1):(start.idx+n)], type="l", xlim=c(start.idx,start.idx+n+h), ylim=c(ymin,ymax), xlab='t', ylab='Y+m')
 lines((start.idx+n+1):(start.idx+n+h), ts.pred[(n+1):(n+h)], col="red")
 
+# plot the actual time series
+# exp(Y + m + s)
 
+X.pred <- exp(ts.pred)
+
+
+ymin = min(X.pred,(df$X[(start.idx+1):(start.idx+n-1)]))
+ymax = max(X.pred,(df$X[(start.idx+1):(start.idx+n-1)]))
+
+plot((start.idx+1):(start.idx+n), df$X[(start.idx+1):(start.idx+n)], type="l", xlim=c(start.idx,start.idx+n+h), ylim=c(ymin,ymax), xlab='t', ylab='exp(Y+m)')
+lines((start.idx+n+1):(start.idx+n+h), X.pred[(n+1):(n+h)], col="red")
+
+
+# innovations using X.log instead of Y
+
+ts.log <- X.log[start.idx:length(X.log)] # Using a limited set of data to prevent it from taking too long
+n <- length(ts.log)
+
+# estimate K
+autocor <- sacf(ts.log,n+h)
+gamma.hat = autocor$gamma.hat
+
+K <- toeplitz(gamma.hat)
+
+ts.log.pred <- innov.hstep(ts.log-mean(ts.log),h,K)$X.pred + mean(ts.log)
+
+ymin = min(ts.log,(ts.log.pred[(n+1):(n+h)]))
+ymax = max(ts.log,(ts.log.pred[(n+1):(n+h)]))
+
+plot((start.idx+1):(n+start.idx),ts.log,type="l",xlim=c(start.idx,start.idx+n+h),ylim=c(ymin,ymax))
+lines((start.idx+n+1):(start.idx+n+h),ts.log.pred[(n+1):(n+h)],col="red")
+
+# plot actual series
+
+ymin = min(exp(ts.log),exp(ts.log.pred[(n+1):(n+h)]))
+ymax = max(exp(ts.log),exp(ts.log.pred[(n+1):(n+h)]))
+
+plot((start.idx+1):(n+start.idx),exp(ts.log),type="l",xlim=c(start.idx,start.idx+n+h),ylim=c(ymin,ymax))
+lines((start.idx+n+1):(start.idx+n+h),exp(ts.log.pred[(n+1):(n+h)]),col="red")
 
 '# Test for weekly seasonality
 par(mfrow= c(1,1))
