@@ -40,17 +40,6 @@ X.log <- df$X.log
 X.diff <- diff(df$X)
 X.log.diff <- diff(df$X.log)
 
-adf.test(X)
-adf.test(X.log)
-adf.test(X.diff)
-adf.test(X.log.diff)
-adf.test(Y)
-
-kpss.test(X)
-kpss.test(X.log)
-kpss.test(X.diff)
-kpss.test(X.log.diff)
-
 # ts
 plot(X, type='l', xlab='t', ylab='USD')
 plot(X.log, type='l', xlab='t', ylab='log(USD)')
@@ -69,9 +58,13 @@ plot(pacf(X.log, max.lag=30)$phi.hat, type='o', xlab='lag',ylab='pacf of log')
 plot(pacf(X.diff, max.lag=30)$phi.hat, type='o', xlab='lag',ylab='pacf of diff')
 plot(pacf(X.log.diff, max.lag=30)$phi.hat, type='o', xlab='lag',ylab='pacf of diff of log')
 
+### Testing stationarity ###
+adf.test(X)
+adf.test(X.log)
+adf.test(X.diff)
+adf.test(X.log.diff)
 
-
-### Remove seasonality and trend
+### Remove seasonality and trend ###
 
 d <- 1 # no seasonality
 s <- seasonality_estimator(df$X.log, d)
