@@ -7,6 +7,7 @@ source('functions/DurbinLevinson.R')
 source('functions/innovations.R')
 source('functions/filters.R')
 library(stats)
+library(tseries)
 
 
 
@@ -38,6 +39,17 @@ X <- df$X
 X.log <- df$X.log
 X.diff <- diff(df$X)
 X.log.diff <- diff(df$X.log)
+
+adf.test(X)
+adf.test(X.log)
+adf.test(X.diff)
+adf.test(X.log.diff)
+adf.test(Y)
+
+kpss.test(X)
+kpss.test(X.log)
+kpss.test(X.diff)
+kpss.test(X.log.diff)
 
 # ts
 plot(X, type='l', xlab='t', ylab='USD')
@@ -89,7 +101,6 @@ beta1 <- fit$coefficients[2]
 
 # Add the stationary time series (Y = X.log - m - s)
 df['Y'] = df$X.log - df$m - df$s
-
 
 ### Plot the time-independent time series
 par(mfrow=c(1,1))
@@ -189,9 +200,12 @@ ymax = max(exp(ts.log),exp(ts.log.pred[(n+1):(n+h)]))
 plot((start.idx+1):(n+start.idx),exp(ts.log),type="l",xlim=c(start.idx,start.idx+n+h),ylim=c(ymin,ymax))
 lines((start.idx+n+1):(start.idx+n+h),exp(ts.log.pred[(n+1):(n+h)]),col="red")
 
-'# Test for weekly seasonality
-par(mfrow= c(1,1))
+# Test for weekly seasonality
+'par(mfrow= c(1,1))
 d <- 7
 s <- seasonality_estimator(X.log, d)
 plot(s, xaxt = "n", ylab='Average deviations', type='o')
-axis(1, at=1:7, labels=c('Mon', 'Tue', 'Wen', 'Thu', 'Fri', 'Sat', 'Sun'))'
+axis(1, at=1:7, labels=c('Mon', 'Tue', 'Wen', 'Thu', 'Fri', 'Sat', 'Sun'))''
+
+adf.test(ts.log)
+kpss.test(ts.log)
