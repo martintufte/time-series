@@ -40,3 +40,25 @@ plot(X, type='l', xlab='t', ylab='USD')
 plot(X.log, type='l', xlab='t', ylab='log(USD)')
 plot(X.diff, type='l', xlab='t', ylab='diff USD')
 plot(X.log.diff, type='l', xlab='t', ylab='diff log(USD)')
+
+
+### SARIMA ###
+xt <- X.log.diff
+plot(xt)
+test_arima <- arima(xt, order = c(1,0,1))
+test_AIC <- test_arima$aic
+AICs <- NULL
+lowestAIC <- 10000
+for (i in 0:3) {
+  for (j in 0:3) {
+    model <- arima(xt, order = c(i,0,j))
+    AIC <- model$aic
+    if (AIC < lowestAIC) {
+      lowestAIC <- AIC
+      bestARIMA <- model
+      AICs[1 + i + 4*(j-1)] <- AIC
+    }
+  }
+}
+bestARIMA
+AICs
