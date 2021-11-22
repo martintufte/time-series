@@ -32,24 +32,28 @@ df.index = df.index + 2158
 # transform the data using log-transformation (Box-Cox with lambda=0)
 df.loc[:,'logBTC'] = np.log(df.BTC)
 
-print(df.index[0])
+
 
 ### remove trend component, assume linear trend m(t) = beta0 + beta1 * t
 
 # design matrix and response (y = X beta + eps)
-X = np.array([np.ones(df.shape[0]), df.index]).T
-y = np.array(df.logBTC)
+X_matr = np.array([np.ones(df.shape[0]), np.sqrt(df.index)]).T
+y_vec = np.array(df.logBTC)
 # MLE estimate for beta (beta = (X^T X)^(-1) X^T y)
-beta0, beta1 = la.solve(X.T@X, X.T@y)
+beta0, beta1 = la.solve(X_matr.T @ X_matr, X_matr.T @ y_vec)
 # trend component
-df.loc[:,'logTrend'] = beta0 + beta1 * df.index
-def trend(x): return beta0 + beta1 * x
+df.loc[:,'m'] = beta0 + beta1 * np.sqrt(df.index)
+def trend(x):
+  return beta0 + beta1 * np.sqrt(x)
 
 
 ### plot the data with trend component
 plt.plot(df.logBTC)
-plt.plot(df.logTrend)
+plt.plot(df.m)
 plt.show()
+
+df.loc[:,'Y'] = df.logBTC - df.m
+
 
 ### scale data and reshape to use in LSTM?
 
@@ -78,7 +82,7 @@ def split_sequence(sequence, n_steps):
 	return np.array(X), np.array(y)
  
 # define input sequence
-raw_seq = np.array(df.logBTC - df.logTrend)
+raw_seq = np.array(df.Y)
 
 # choose a number of time steps
 n_steps = 100
