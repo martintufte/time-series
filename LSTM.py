@@ -49,22 +49,6 @@ df.loc[:,'Y'] = df.logBTC - df.m
 
 
 
-### plot the data with trend component
-
-#plt.plot(df.logBTC)
-#plt.plot(df.m)
-#plt.show()
-
-
-
-### split into training and test data set (use last 365 days for test)
-
-#split_idx = np.shape(df)[0] - 365
-#df_train = df[:split_idx]
-#df_test = df[split_idx:]
-
-
-
 ### create Long Short-Term model
 def split_sequence(seq, n_steps):
     X = []
@@ -96,8 +80,6 @@ def predict_lstm_hstep(model, seq, h=1):
     prediction = values[-h:]
     
     return prediction
-
-
 
 
 # Arcitecture
@@ -143,7 +125,7 @@ plt.figure(figsize=(8, 6), dpi=80)
 # plot prediction with the training input
 plt.plot(df.index - 2158, df.logBTC - df.m, color='black', linewidth=1)
 for model in models:
-    plt.plot(df.index[n_steps:] - 2158, model.predict(X), color='r--', linewidth=1)
+    plt.plot(df.index[n_steps:] - 2158, model.predict(X), color='red', linewidth=1)
 plt.xlabel('t')
 plt.ylabel('Y')
 plt.savefig('LSTM_Ys.pdf')
@@ -160,5 +142,3 @@ plt.xlabel('t')
 plt.ylabel('log(USD)')
 plt.savefig('LSTM_predictions.pdf')
 plt.show()
-
-
