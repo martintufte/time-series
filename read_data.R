@@ -7,6 +7,7 @@ source('functions/DurbinLevinson.R')
 source('functions/innovations.R')
 source('functions/filters.R')
 library(stats)
+library(tseries)
 
 
 
@@ -57,13 +58,34 @@ plot(pacf(X.log, max.lag=30)$phi.hat, type='o', xlab='lag',ylab='pacf of log')
 plot(pacf(X.diff, max.lag=30)$phi.hat, type='o', xlab='lag',ylab='pacf of diff')
 plot(pacf(X.log.diff, max.lag=30)$phi.hat, type='o', xlab='lag',ylab='pacf of diff of log')
 
+### Testing stationarity ###
+adf.test(X)
+adf.test(X.log)
+adf.test(X.diff)
+adf.test(X.log.diff)
 
-
-### Remove seasonality and trend
+### Remove seasonality and trend ###
 
 d <- 1 # no seasonality
 s <- seasonality_estimator(df$X.log, d)
 df['s'] <- rep(s, ceiling(n/d))[1:n]
+
+d <- 7 # daily
+s7 <- seasonality_estimator(df$X.log, d)
+df['s7'] <- rep(s7, ceiling(n/d))[1:n]
+
+d <- 30 # monthly
+s30 <- seasonality_estimator(df$X.log, d)
+df['s30'] <- rep(s30, ceiling(n/d))[1:n]
+
+d <- 91 #quarterly
+s91 <- seasonality_estimator(df$X.log, d)
+df['s91'] <- rep(s91, ceiling(n/d))[1:n]
+
+par(mfrow=c(3,1),mar=c(5,4,1,2))
+plot(s7, type = "l")
+plot(s30, type = "l")
+plot(s91, type = "l")
 
 fit <- lm(X.log ~ 1 + t, data = df) # linear trend beta0 + beta1 * t
 df['m'] <- fit$fitted.values
@@ -72,7 +94,6 @@ beta1 <- fit$coefficients[2]
 
 # Add the stationary time series (Y = X.log - m - s)
 df['Y'] = df$X.log - df$m - df$s
-
 
 ### Plot the time-independent time series
 par(mfrow=c(1,1))
@@ -172,9 +193,12 @@ ymax = max(exp(ts.log),exp(ts.log.pred[(n+1):(n+h)]))
 plot((start.idx+1):(n+start.idx),exp(ts.log),type="l",xlim=c(start.idx,start.idx+n+h),ylim=c(ymin,ymax))
 lines((start.idx+n+1):(start.idx+n+h),exp(ts.log.pred[(n+1):(n+h)]),col="red")
 
-'# Test for weekly seasonality
-par(mfrow= c(1,1))
+# Test for weekly seasonality
+'par(mfrow= c(1,1))
 d <- 7
 s <- seasonality_estimator(X.log, d)
 plot(s, xaxt = "n", ylab='Average deviations', type='o')
-axis(1, at=1:7, labels=c('Mon', 'Tue', 'Wen', 'Thu', 'Fri', 'Sat', 'Sun'))'
+axis(1, at=1:7, labels=c('Mon', 'Tue', 'Wen', 'Thu', 'Fri', 'Sat', 'Sun'))''
+
+adf.test(ts.log)
+kpss.test(ts.log)
