@@ -2,14 +2,14 @@ library(rugarch)
 library(forecast)
 
 ## function for finding the best model, then plotting it
-plotgarch <- function(arma.order,garch.model,i.max = 4, j.max = 4) {
+plotgarch <- function(data,arma.order,garch.model,i.max = 2, j.max = 2, h = 365) {
   
   criteria <- list()
   for(i in 1:i.max){
     criteria0 <- list()
     for(j in 1:j.max){
       model.spec <- ugarchspec(variance.model = list(model=garch.model,garchOrder=c(i,j)),mean.model = list(armaOrder=arma.order,include.mean=FALSE),distribution.model = "std")
-      model=ugarchfit(spec=model.spec, data=Z)
+      model=ugarchfit(spec=model.spec, data=data)
       criteria0[[j]] <- data.frame(aic=infocriteria(model)[1],bic=infocriteria(model)[2],i=i,j=j)
     }
     criteria[[i]] <- criteria0
@@ -23,12 +23,9 @@ plotgarch <- function(arma.order,garch.model,i.max = 4, j.max = 4) {
   j.aic <- model.criteria[which.min(model.criteria$aic),]$j
   
   model.spec=ugarchspec(variance.model=list(model = garch.model, garchOrder=c(i.aic,j.aic)), mean.model=list(armaOrder=arma.order), distribution.model = "std")
-  model=ugarchfit(spec=model.spec, data=Z)
+  model=ugarchfit(spec=model.spec, data=data)
   
-  #plot(model,which="all")
-  
-  h <- 365 # predict 1 year ahead
-  n <- length(Z)
+  n <- length(data)
   
   f.model <- ugarchforecast(model,n.ahead=h)
   plot(1:n,Z[1:n],type="l",xlim=c(0,(n+h)))
@@ -38,23 +35,28 @@ plotgarch <- function(arma.order,garch.model,i.max = 4, j.max = 4) {
   
 }
 
-arma.order = c(0,0)
 par(mfrow=c(2,2))
+
+# For data = Z
+
+arma.order = c(0,2)
+data = Z
+h <- 365 # predict 1 year ahead
 
 # GARCH
 garch.model = "sGARCH"
-plotgarch(arma.order,garch.model,2,2)
+plotgarch(data,arma.order,garch.model,2,2,h)
 
 # eGARCH
 garch.model = "eGARCH"
-plotgarch(arma.order,garch.model,2,2)
+plotgarch(data,arma.order,garch.model,2,2,h)
 
-#
+# iGARCH
 garch.model = "iGARCH"
-plotgarch(arma.order,garch.model,2,2)
+plotgarch(data,arma.order,garch.model,2,2,h)
 
-#
+# fiGARCH
 garch.model = "fiGARCH"
-plotgarch(arma.order,garch.model,2,2)
+plotgarch(data,arma.order,garch.model,2,2,h)
 
 
