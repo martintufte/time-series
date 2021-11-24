@@ -35,7 +35,7 @@ X <- df$X
 X.log <- df$X.log
 X.diff <- diff(df$X)
 X.log.diff <- diff(df$X.log)
-
+Z <-  X.log.diff
 # ts
 plot(X, type='l', xlab='t', ylab='USD')
 plot(X.log, type='l', xlab='t', ylab='log(USD)')
@@ -44,13 +44,12 @@ plot(X.log.diff, type='l', xlab='t', ylab='diff log(USD)')
 
 
 ### SARIMA ###
-xt <- X.log.diff
-plot(xt)
+plot(Z)
 AICs <- NULL
 lowestAIC <- 10000
 for (i in 0:4) {
   for (j in 0:4) {
-    model <- arima(xt, order = c(i,0,j))
+    model <- arima(Z, order = c(i,0,j))
     AIC <- model$aic
     if (AIC < lowestAIC) {
       lowestAIC <- AIC
