@@ -22,25 +22,25 @@ names(df)[names(df) == "CBBTCUSD"] <- "X"
 # t is time after Bitcoins creation
 df['t'] <- 1:n + 2206
 
-df$t
+# remove trend
+fit <- lm(log(X) ~ 1 + t, data = df) # linear trend beta0 + beta1 * t
+df['m'] <- fit$fitted.values
+beta0 <- fit$coefficients[1]
+beta1 <- fit$coefficients[2]
 
+# Residual time series
+Y <- as.ts(log(df$X) - df$m)
+Z <-  as.ts(diff(log(df$X)))
 
-### PLOT DATA ###
+# Remove mean from Z to make it stationary
+Z.mu <- mean(Z)
+Z <- Z - Z.mu
 
-par(mfrow=c(2,2),mar=c(5,4,1,2))
-
-df['X.log'] <- log(df$X)
-
-X <- df$X
-X.log <- df$X.log
-X.diff <- diff(df$X)
-X.log.diff <- diff(df$X.log)
-Z <-  X.log.diff
 # ts
-plot(X, type='l', xlab='t', ylab='USD')
-plot(X.log, type='l', xlab='t', ylab='log(USD)')
-plot(X.diff, type='l', xlab='t', ylab='diff USD')
-plot(X.log.diff, type='l', xlab='t', ylab='diff log(USD)')
+par(mfrow=c(2,1),mar=c(5,4,1,2))
+
+plot(Y, type='l', xlab='t', ylab='Y')
+plot(Z, type='l', xlab='t', ylab='Z')
 
 
 ### SARIMA ###
