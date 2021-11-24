@@ -43,13 +43,13 @@ plot(Y, type='l', xlab='t', ylab='Y')
 plot(Z, type='l', xlab='t', ylab='Z')
 
 
+
 ### SARIMA ###
-plot(Z)
 AICs <- NULL
 lowestAIC <- 10000
 for (i in 0:4) {
   for (j in 0:4) {
-    model <- arima(Z, order = c(i,0,j))
+    model <- arima(Y, order = c(i,0,j))
     AIC <- model$aic
     if (AIC < lowestAIC) {
       lowestAIC <- AIC
@@ -60,25 +60,3 @@ for (i in 0:4) {
 }
 bestARIMA
 AICs
-
-### GARCH ###
-
- 
-bestGARCH
-AICs
-
-AICs <- NULL
-lowestAIC <- 10000
-for (i in 0:4) {
-   for (j in 0:4) {
-       sGarch.ts.spec <- ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(i, j)), mean.model = list(armaOrder = c(1, 1), include.mean=FALSE))
-       sGarch.ts <- ugarchfit(spec = sGarch.ts.spec, data=X.log.diff)
-        AIC <- infocriteria(sGarch.ts)[1]
-        BIC <- infocriteria(sGarch.ts)[2]
-       if (AIC < lowestAIC) {
-           lowestAIC <- AIC
-           bestGARCH <- sGarch.ts
-           AICs[1 + i + 4*(j-1)] <- AIC
-         }
-   }
-}
