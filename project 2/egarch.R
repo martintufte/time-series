@@ -1,4 +1,3 @@
-
 library(stats)
 library(tseries)
 library(rugarch)
@@ -23,42 +22,44 @@ df['X.log'] <- log(df$X)
 X <- df$X
 X.log <- df$X.log
 X.diff <- diff(df$X)
-X.log.diff <- diff(df$X.log)
+Z <- as.ts(diff(df$X.log))
+
+arma.order = c(0,0)
+garch.model = "eGARCH"
 
 ## eGARCH model 
 criteria <- list()
 for(i in 1:2){
   criteria0 <- list()
   for(j in 1:2){
-    model.egarch.spec <- ugarchspec(variance.model = list(model="eGARCH",garchOrder=c(i,j)),mean.model = list(armaOrder=c(2,4),include.mean=FALSE),distribution.model = "std")
-    model.egarch=ugarchfit(spec=model.egarch.spec, data=X.log.diff)
-    criteria0[[j]] <- data.frame(aic=infocriteria(model.egarch)[1],bic=infocriteria(model.egarch)[2],i=i,j=j)
+    model.spec <- ugarchspec(variance.model = list(model=garch.model,garchOrder=c(i,j)),mean.model = list(armaOrder=arma.order,include.mean=FALSE),distribution.model = "std")
+    model=ugarchfit(spec=model.spec, data=Z)
+    criteria0[[j]] <- data.frame(aic=infocriteria(model)[1],bic=infocriteria(model)[2],i=i,j=j)
   }
   criteria[[i]] <- criteria0
 }
 
-model.egarch.criteria <- do.call("rbind",lapply(criteria,function(x){do.call("rbind",x)}))
-model.egarch.criteria[which.min(model.egarch.criteria$bic),]
-model.egarch.criteria[which.min(model.egarch.criteria$aic),]
+model.criteria <- do.call("rbind",lapply(criteria,function(x){do.call("rbind",x)}))
+#model.criteria[which.min(model.criteria$bic),]
+#model.criteria[which.min(model.criteria$aic),]
 
-i.aic <- model.egarch.criteria[which.min(model.egarch.criteria$aic),]$i
-j.aic <- model.egarch.criteria[which.min(model.egarch.criteria$aic),]$j
+i.aic <- model.criteria[which.min(model.criteria$aic),]$i
+j.aic <- model.criteria[which.min(model.criteria$aic),]$j
 
+model.spec=ugarchspec(variance.model=list(model = garch.model, garchOrder=c(i.aic,j.aic)), mean.model=list(armaOrder=arma.order), distribution.model = "std")
+model=ugarchfit(spec=model.spec, data=Z)
 
-model.egarch.spec=ugarchspec(variance.model=list(model = "eGARCH", garchOrder=c(i.aic,j.aic)), mean.model=list(armaOrder=c(2,4)), distribution.model = "std")
-model.egarch=ugarchfit(spec=model.egarch.spec, data=X.log.diff)
-
-#plot(model.egarch,which="all")
-
+#plot(model,which="all")
 
 library(forecast)
 
 h <- 365 # predict 1 year ahead
-n <- length(ts)
+n <- length(Z)
+
+f.model <- ugarchforecast(model,n.ahead=h)
+plot(1:n,Z[1:n],type="l",xlim=c(0,(n+h)))
+lines(seq(n+1,n+h),f.model@forecast$seriesFor,col="red")
+lines(seq(n+1,n+h),f.model@forecast$seriesFor-qt(0.025,9)*f.model@forecast$sigmaFor,col="blue")
+lines(seq(n+1,n+h),f.model@forecast$seriesFor+qt(0.025,9)*f.model@forecast$sigmaFor,col="blue")
 
 
-f.model.egarch <- ugarchforecast(model.egarch,n.ahead=h)
-plot(1:n,X.log.diff[1:n],type="l",xlim=c(0,(n+h)))
-lines(seq(n+1,n+h),f.model.egarch@forecast$seriesFor,col="red")
-lines(seq(n+1,n+h),f.model.egarch@forecast$seriesFor-qt(0.025,9)*f.model.egarch@forecast$sigmaFor,col="blue")
-lines(seq(n+1,n+h),f.model.egarch@forecast$seriesFor+qt(0.025,9)*f.model.egarch@forecast$sigmaFor,col="blue")
