@@ -44,26 +44,95 @@ h <- 365 # predict 1 year ahead
 
 # GARCH
 garch.model = "sGARCH"
-mod.GARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
+Z.mod.GARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
 
 # eGARCH
 garch.model = "eGARCH"
-mod.eGARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
+Z.mod.eGARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
 
 # iGARCH
 garch.model = "iGARCH"
-mod.iGARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
+Z.mod.iGARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
 
 # fiGARCH
 garch.model = "fiGARCH"
-mod.fiGARCH <- plotgarch(data,arma.order,garch.model,3,3,h)
+Z.mod.fiGARCH <- plotgarch(data,arma.order,garch.model,3,3,h)
+
+# For data = Y
+
+arma.order = c(3,2)
+data = Y
+h <- 365 # predict 1 year ahead
+
+# GARCH
+garch.model = "sGARCH"
+Y.mod.GARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
+
+# eGARCH
+garch.model = "eGARCH"
+Y.mod.eGARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
+
+# iGARCH
+garch.model = "iGARCH"
+Y.mod.iGARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
+
+# fiGARCH
+garch.model = "fiGARCH"
+Y.mod.fiGARCH <- plotgarch(data,arma.order,garch.model,3,3,h)
 
 
 ### Extracting parameters
-mod.GARCH
-mod.eGARCH
-mod.iGARCH
-mod.fiGARCH
+Z.mod.GARCH
+Z.mod.eGARCH
+Z.mod.iGARCH
+Z.mod.fiGARCH
+
+# transform Z into something similar to Y, then plot it
+transform.data <- function(garch.model,model.name,data = Z, data2 = Y, h=365) {
+  y = data2[length(data2)]
+  
+  f.model <- ugarchforecast(garch.model,n.ahead=h)
+  
+  line1 <- f.model@forecast$seriesFor
+  line2 <- f.model@forecast$seriesFor-qt(0.025,9)*f.model@forecast$sigmaFor
+  line3 <- f.model@forecast$seriesFor+qt(0.025,9)*f.model@forecast$sigmaFor
+  
+  line1 = line1 + Z.mu
+  line2 = line2 + Z.mu
+  line3 = line3 + Z.mu
+  
+  
+  l = length(line1)
+  for(i in 2:l) {
+    line1[i] = line1[i] + line1[i-1]
+    line2[i] = line2[i] + line2[i-1]
+    line3[i] = line3[i] + line3[i-1]
+  }
+  line2 = line2/sqrt(l)
+  line3 = line3/sqrt(l)
+  
+  line1 = line1 + y
+  line2 = line2 + y
+  line3 = line3 + y
+  
+  
+  plot(data2,type="l",xlim=c(0,(n+h)),ylab=model.name,ylim=c(-3,3))
+  lines(seq(n+1,n+h),line1,col="red")
+  lines(seq(n+1,n+h),line2,col="blue")
+  lines(seq(n+1,n+h),line3,col="blue")
+  
+  # return model
+}
+
+# plot forecasts for Z, transformed back to non-differentiated form
+par(mfrow=c(2,2))
+{
+  transform.data(Z.mod.GARCH,"GARCH")
+  transform.data(Z.mod.eGARCH,"eGARCH")
+  transform.data(Z.mod.iGARCH,"iGARCH")
+  transform.data(Z.mod.fiGARCH,"fiGARCH")
+}
+
 
 
 
