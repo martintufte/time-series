@@ -3,7 +3,6 @@
 
 library(stats)
 library(astsa)
-#install.packages('rugarch')
 library(rugarch)
 
 

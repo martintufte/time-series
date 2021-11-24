@@ -14,7 +14,7 @@ df$CBBTCUSD <- as.numeric(df$CBBTCUSD)
 n <- dim(df)[1]
 # change name of column to X
 names(df)[names(df) == "CBBTCUSD"] <- "X"
-# t is time after Bitcoins creation
+# t is time after Bitcoins creation    
 df['t'] <- 1:n + 2206
 
 df['X.log'] <- log(df$X)
