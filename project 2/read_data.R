@@ -3,7 +3,8 @@
 
 library(stats)
 library(astsa)
-
+#install.packages('rugarch')
+library(rugarch)
 
 
 ### DATA PREP ###
@@ -45,17 +46,35 @@ plot(X.log.diff, type='l', xlab='t', ylab='diff log(USD)')
 ### SARIMA ###
 xt <- X.log.diff
 plot(xt)
-test_arima <- arima(xt, order = c(1,0,1))
-test_AIC <- test_arima$aic
 AICs <- NULL
 lowestAIC <- 10000
-for (i in 0:3) {
-  for (j in 0:3) {
+for (i in 0:4) {
+  for (j in 0:4) {
     model <- arima(xt, order = c(i,0,j))
     AIC <- model$aic
     if (AIC < lowestAIC) {
       lowestAIC <- AIC
       bestARIMA <- model
+      AICs[1 + i + 4*(j-1)] <- AIC
+    }
+  }
+}
+bestARIMA
+AICs
+
+### GARCH ###
+
+AICs <- NULL
+lowestAIC <- 10000
+for (i in 0:4) {
+  for (j in 0:4) {
+    sGarch.ts.spec <- ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(i, j)), mean.model = list(armaOrder = c(1, 1), include.mean=FALSE))
+    sGarch.ts <- ugarchfit(spec = sGarch.ts.spec, data=X.log.diff)
+    AIC <- infocriteria(model2)[1]
+    BIC <- infocriteria(model2)[2]
+    if (AIC < lowestAIC) {
+      lowestAIC <- AIC
+      bestGARCH <- sGarch.ts
       AICs[1 + i + 4*(j-1)] <- AIC
     }
   }
