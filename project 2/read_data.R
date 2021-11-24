@@ -4,6 +4,7 @@
 library(stats)
 library(astsa)
 library(rugarch)
+library(tseries)
 
 
 ### DATA PREP ###
@@ -31,9 +32,19 @@ beta1 <- fit$coefficients[2]
 Y <- as.ts(log(df$X) - df$m)
 Z <-  as.ts(diff(log(df$X)))
 
+
 # Remove mean from Z to make it stationary
 Z.mu <- mean(Z)
 Z <- Z - Z.mu
+
+### Testing stationarity ###
+plot(Y)
+plot(diff(Y))
+plot(Z)
+adf.test(Y)
+adf.test(Z)
+Box.test(Y, lag = 1, type = c("Box-Pierce", "Ljung-Box"), fitdf = 0)
+Box.test(Z, lag = 1, type = c("Box-Pierce", "Ljung-Box"), fitdf = 0)
 
 # ts
 par(mfrow=c(2,1),mar=c(5,4,1,2))
@@ -48,7 +59,7 @@ AICs <- NULL
 lowestAIC <- 10000
 for (i in 0:4) {
   for (j in 0:4) {
-    model <- arima(Y, order = c(i,0,j))
+    model <- arima(Z, order = c(i,0,j))
     AIC <- model$aic
     if (AIC < lowestAIC) {
       lowestAIC <- AIC
