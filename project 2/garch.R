@@ -16,13 +16,10 @@ plotgarch <- function(data,arma.order,garch.model,i.max = 2, j.max = 2, h = 365)
   }
   
   model.criteria <- do.call("rbind",lapply(criteria,function(x){do.call("rbind",x)}))
-  #model.criteria[which.min(model.criteria$bic),]
-  #model.criteria[which.min(model.criteria$aic),]
+  i.aic = model.criteria[which.min(model.criteria$aic),]$i
+  j.aic = model.criteria[which.min(model.criteria$aic),]$j
   
-  i.aic <- model.criteria[which.min(model.criteria$aic),]$i
-  j.aic <- model.criteria[which.min(model.criteria$aic),]$j
-  
-  model.spec=ugarchspec(variance.model=list(model = garch.model, garchOrder=c(i.aic,j.aic)), mean.model=list(armaOrder=arma.order), distribution.model = "std")
+  model.spec <- ugarchspec(variance.model = list(model=garch.model,garchOrder=c(i.aic,j.aic)),mean.model = list(armaOrder=arma.order,include.mean=FALSE),distribution.model = "std")
   model=ugarchfit(spec=model.spec, data=data)
   
   n <- length(data)
