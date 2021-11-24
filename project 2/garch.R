@@ -25,7 +25,7 @@ plotgarch <- function(data, arma.order, garch.model, i.max = 2, j.max = 2, h = 3
   n <- length(data)
   
   f.model <- ugarchforecast(model,n.ahead=h)
-  plot(Z,type="l",xlim=c(0,(n+h)),ylab=as.character(garch.model))
+  plot(data,type="l",xlim=c(0,(n+h)),ylab=as.character(garch.model))
   lines(seq(n+1,n+h),f.model@forecast$seriesFor,col="red")
   lines(seq(n+1,n+h),f.model@forecast$seriesFor-qt(0.025,9)*f.model@forecast$sigmaFor,col="blue")
   lines(seq(n+1,n+h),f.model@forecast$seriesFor+qt(0.025,9)*f.model@forecast$sigmaFor,col="blue")
