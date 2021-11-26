@@ -42,29 +42,56 @@ h <- 365 # predict 1 year ahead
 
 # GARCH
 garch.model = "sGARCH"
-mod.GARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
+Z.mod.GARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
 
 # eGARCH
 garch.model = "eGARCH"
-mod.eGARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
+Z.mod.eGARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
 
 # iGARCH
 garch.model = "iGARCH"
-mod.iGARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
+Z.mod.iGARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
 
 # fiGARCH
 garch.model = "fiGARCH"
-mod.fiGARCH <- plotgarch(data,arma.order,garch.model,3,3,h)
+Z.mod.fiGARCH <- plotgarch(data,arma.order,garch.model,3,3,h)
 
 
 ### Extracting parameters
-mod.GARCH
-mod.eGARCH
-mod.iGARCH
-mod.fiGARCH
+Z.mod.GARCH
+Z.mod.eGARCH
+Z.mod.iGARCH
+Z.mod.fiGARCH
+
+# For data = Y
+arma.order = c(5,2)
+data = Y
+h <- 365 # predict 1 year ahead
+
+# GARCH
+garch.model = "sGARCH"
+Y.mod.GARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
+
+# eGARCH
+garch.model = "eGARCH"
+Y.mod.eGARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
+
+# iGARCH
+garch.model = "iGARCH"
+Y.mod.iGARCH <- plotgarch(data,arma.order,garch.model,5,5,h)
+
+# fiGARCH
+garch.model = "fiGARCH"
+Y.mod.fiGARCH <- plotgarch(data,arma.order,garch.model,1,1,h)
+
+### Extracting parameters
+Y.mod.GARCH
+Y.mod.eGARCH
+Y.mod.iGARCH
+Y.mod.fiGARCH
 
 # transform Z into something similar to Y (anti-differentiate it), then plot it
-transform.data <- function(garch.model,model.name,data = Z, data2 = Y, h=365) {
+transform.data <- function(garch.model,model.name,data = Z, data2 = Y + df$m, h=365) {
   y = data2[length(data2)]
   
   f.model <- ugarchforecast(garch.model,n.ahead=h)
@@ -92,7 +119,7 @@ transform.data <- function(garch.model,model.name,data = Z, data2 = Y, h=365) {
   line3 = line3 + y
   
   
-  plot(data2,type="l",xlim=c(0,(n+h)),ylab=model.name,ylim=c(-3,3))
+  plot(data2,type="l",xlim=c(0,(n+h)),ylab=model.name,ylim=c(5,13))
   lines(seq(n+1,n+h),line1,col="red")
   lines(seq(n+1,n+h),line2,col="blue")
   lines(seq(n+1,n+h),line3,col="blue")
@@ -108,4 +135,3 @@ par(mfrow=c(2,2))
   transform.data(Z.mod.iGARCH,"iGARCH")
   transform.data(Z.mod.fiGARCH,"fiGARCH")
 }
-

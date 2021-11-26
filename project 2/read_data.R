@@ -61,7 +61,8 @@ plot(Z, type='l', xlab='t', ylab='Z')
 
 
 
-### SARIMA ###
+### ARIMA ###
+# For Z
 AICs <- NULL
 lowestAIC <- 10000
 for (i in 0:3) {
@@ -77,4 +78,21 @@ for (i in 0:3) {
 }
 bestARIMA # best order is (1,0)
 AICs
-               
+       
+
+# For Y
+AICs <- NULL
+lowestAIC <- 10000
+for (i in 0:7) {
+  for (j in 0:7) {
+    model <- arima(Y, order = c(i,0,j))
+    AIC <- model$aic
+    if (AIC < lowestAIC) {
+      lowestAIC <- AIC
+      bestARIMA <- model
+      AICs[1 + i + 4*(j-1)] <- AIC
+    }
+  }
+}
+bestARIMA # best order is (5,2)
+AICs        
