@@ -37,6 +37,13 @@ Z <-  as.ts(diff(log(df$X)))
 Z.mu <- mean(Z)
 Z <- Z - Z.mu
 
+
+# Initial plot of time series
+par(mfrow=c(2,1))
+plot(Y)
+plot(Z)
+
+
 ### Testing stationarity ###
 plot(Y)
 plot(diff(Y))
