@@ -96,3 +96,5 @@ AICs
 
 # Ljung-Box test on residuals of ARIMA-model
 Box.test(bestARIMA$residuals, lag = 1, type = c("Ljung-Box"), fitdf = 0)
+
+plot(bestARIMA$residuals)
