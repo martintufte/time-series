@@ -38,27 +38,21 @@ Z.mu <- mean(Z)
 Z <- Z - Z.mu
 
 
-# Initial plot of time series
-par(mfrow=c(2,1))
-plot(Y)
-plot(Z)
-
-
 ### Testing stationarity ###
-plot(Y)
-plot(diff(Y))
-plot(Z)
+
+# Augmented Dickey-Fuller Test
 adf.test(Y)
 adf.test(Z)
-Box.test(Y, lag = 1, type = c("Box-Pierce", "Ljung-Box"), fitdf = 0)
-Box.test(Z, lag = 1, type = c("Box-Pierce", "Ljung-Box"), fitdf = 0)
+
+# Ljung-Box test
+Box.test(Y, lag = 1, type = c("Ljung-Box"), fitdf = 0)
+Box.test(Z, lag = 1, type = c("Ljung-Box"), fitdf = 0)
 
 # ts
 par(mfrow=c(2,1),mar=c(5,4,1,2))
 
 plot(Y, type='l', xlab='t', ylab='Y')
 plot(Z, type='l', xlab='t', ylab='Z')
-
 
 
 ### ARIMA ###
@@ -78,7 +72,10 @@ for (i in 0:3) {
 }
 bestARIMA # best order is (1,0)
 AICs
-       
+
+# Ljung-Box test on residuals of ARIMA-model
+Box.test(bestARIMA$residuals, lag = 1, type = c("Ljung-Box"), fitdf = 0)
+ 
 
 # For Y
 AICs <- NULL
@@ -96,3 +93,6 @@ for (i in 0:7) {
 }
 bestARIMA # best order is (5,2)
 AICs        
+
+# Ljung-Box test on residuals of ARIMA-model
+Box.test(bestARIMA$residuals, lag = 1, type = c("Ljung-Box"), fitdf = 0)
