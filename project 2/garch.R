@@ -33,11 +33,9 @@ plotgarch <- function(data, arma.order, garch.model, i.max = 2, j.max = 2, h = 3
   # return model
   model
 }
-
 par(mfrow=c(2,2))
 
 # For data = Z
-
 arma.order = c(0,2)
 data = Z
 h <- 365 # predict 1 year ahead
